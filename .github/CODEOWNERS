@@ -1,0 +1,5 @@
+# ROS2 team owns the ROS2 directory
+/ROS2/ @ECN-Nantrobot/ros2_team
+
+# Firmware team owns the Firmware directory
+/Firmware/ @ECN-Nantrobot/firmware_team

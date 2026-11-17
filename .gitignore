@@ -1,0 +1,67 @@
+
+# ==================================
+# General
+# ==================================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*~
+
+# IDEs and editors
+.vscode/*
+ROS2/src/.vscode/*
+Firmware/.vscode/*
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# ==================================
+# ROS2 / COLCON
+# ==================================
+ROS2/build/
+ROS2/install/
+ROS2/log/
+
+# ROS2 Python generated files
+# ROS2/**/setup.py
+# ROS2/**/setup.cfg
+# ROS2/**/package.xml.bak
+
+# ==================================
+# ESP32
+# ==================================
+Firmware/.cache/
+
+# ==================================
+# C / C++ build outputs
+# ==================================
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+
+# Embedded build outputs
+*.elf
+*.hex
+*.bin
+*.map
+
+# ==================================
+# Local environment files
+# ==================================
+.env
+.env.*
+!.env.example
+
