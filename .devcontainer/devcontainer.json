@@ -1,0 +1,25 @@
+{
+  "name": "nantrobot_main_robot_2027",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "clangd.arguments": [
+          "--compile-commands-dir=/workspace/ROS2/build/nantrobot_control"
+        ],
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "cmake.sourceDirectory": "/workspace/ROS2/src/nantrobot_control"
+      }
+    }
+  }
+}
