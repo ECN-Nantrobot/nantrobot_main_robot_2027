@@ -8,6 +8,7 @@ Thumbs.db
 *.tmp
 *.bak
 *~
+.cache/
 
 # IDEs and editors
 .vscode/*
@@ -15,6 +16,7 @@ ROS2/src/.vscode/*
 Firmware/.vscode/*
 .idea/
 *.swp
+.kilo/
 
 # Python
 __pycache__/
@@ -61,7 +63,7 @@ Firmware/.cache/
 # ==================================
 # Local environment files
 # ==================================
+.local/
 .env
 .env.*
 !.env.example
-

@@ -1,16 +1,27 @@
 # nantrobot_control
 
-`nantrobot_control` includes the MCU bridge for drive commands, wheel feedback, and IMU measurements.
+`nantrobot_control` is the package for executing the robot’s planned motion and interacting with the MCU. It uses the planned path and the estimated robot pose to compute forward speed and yaw rate, checks whether a motion is allowed, and sends approved commands to the MCU.
 
 ## Build and launch
 
-Run these commands from the workspace directory.
+Run these commands from the workspace:
 
 ```sh
 source /opt/ros/jazzy/setup.bash
 colcon build --packages-select nantrobot_control
 source install/setup.bash
+```
+
+For normal launch:
+
+```sh
 ros2 launch nantrobot_control control.launch.xml
+```
+
+For teleop with an Xbox controller:
+
+```sh
+ros2 launch nantrobot_control teleop.launch.xml
 ```
 
 ## Recording a run
@@ -24,7 +35,7 @@ ros2 launch nantrobot_control teleop.launch.xml record:=true
 
 ## Tests
 
-Run these commands from the workspace directory:
+Run the Python tests from the workspace. The build compiles a test-only Python binding for the MCU codec and clock. The tests run when you invoke `colcon test`.
 
 ```sh
 source /opt/ros/jazzy/setup.bash
@@ -38,15 +49,36 @@ colcon test-result --test-result-base build/nantrobot_control --verbose
 
 | Files | Responsibility |
 | --- | --- |
-| [`src/mcu/bridge_node.cpp`](src/mcu/bridge_node.cpp)<br>[`include/mcu/bridge_node.hpp`](include/mcu/bridge_node.hpp) | MCU bridge node. Subscribes to velocity commands, enforces command freshness, and publishes timestamped wheel and IMU feedback. |
-| [`src/mcu/bridge_node/serial.cpp`](src/mcu/bridge_node/serial.cpp) | Serial setup, reads and writes, disconnect cleanup, and reconnect handling for the bridge. |
-| [`src/mcu/bridge_node/settings.cpp`](src/mcu/bridge_node/settings.cpp) | Loads and validates bridge parameters at startup. The bridge header declares the settings struct. |
-| [`src/mcu/clock_sync.cpp`](src/mcu/clock_sync.cpp)<br>[`include/mcu/clock_sync.hpp`](include/mcu/clock_sync.hpp) | Matches sync replies to requests and converts MCU acquisition times to ROS timestamps. |
-| [`src/mcu/protocol.cpp`](src/mcu/protocol.cpp)<br>[`include/mcu/protocol.hpp`](include/mcu/protocol.hpp) | Defines message types and wire sizes, encodes outgoing frames, and decodes incoming serial data with checksum validation. |
-| [`launch/control.launch.xml`](launch/control.launch.xml)<br>[`config/control.yaml`](config/control.yaml) | Control bring-up and MCU bridge configuration. |
-| [`launch/teleop.launch.xml`](launch/teleop.launch.xml)<br>[`config/teleop.yaml`](config/teleop.yaml) | Gamepad bring-up, joystick mappings, and velocity scaling. The launch file also loads the bridge settings from control.yaml. |
-| [`test/mcu/test_protocol.cpp`](test/mcu/test_protocol.cpp)<br>[`test/mcu/test_clock_sync.cpp`](test/mcu/test_clock_sync.cpp)<br>[`test/mcu/test_bridge.py`](test/mcu/test_bridge.py) | Protocol and clock-sync unit tests plus a bridge integration test using simulated serial ports. See [Tests](#tests) for the run commands. |
+| [`src/mcu/`](src/mcu/) | The bridge node handles drive commands and sensor feedback. Clock sync converts MCU timestamps to ROS time, and the protocol encodes and decodes serial frames. |
+| [`src/mcu/bridge_node/`](src/mcu/bridge_node/) | Serial I/O, USB reconnection, and bridge parameter loading and validation. |
+| [`src/motion/`](src/motion/) | The motion supervisor checks odometry before forwarding autonomous velocity requests to the collision monitor. |
+| [`launch/control.launch.xml`](launch/control.launch.xml)<br>[`config/control.yaml`](config/control.yaml)<br>[`config/nav2.yaml`](config/nav2.yaml) | Control bring-up and configuration for the bridge, motion controller, and Nav2 nodes. |
+| [`launch/teleop.launch.xml`](launch/teleop.launch.xml)<br>[`config/teleop.yaml`](config/teleop.yaml) | Gamepad bring-up, joystick mappings, and velocity scaling. |
+| [`test/mcu/`](test/mcu/) | Protocol and clock-sync unit tests plus a bridge integration test using simulated serial ports. |
+| [`test/motion/`](test/motion/) | Tests odometry timeout and recovery, and runs a Nav2 path through the control launch with simulated sensors and a serial port. |
 | [`CMakeLists.txt`](CMakeLists.txt)<br>[`package.xml`](package.xml) | Build and test targets, installation rules, and package dependencies. |
+
+## Algorithms
+
+### Path tracking ([Rotation Shim Controller](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/controller_plugins/configuring_rotation_shim_controller/) · [Regulated Pure Pursuit](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/controller_plugins/configuring_regulated_pp/))
+
+When starting a path, Nav2’s Rotation Shim Controller checks the robot’s heading against the start of the path. If the robot is misaligned, it rotates in place until the heading is within tolerance. It then hands off to Regulated Pure Pursuit, which follows the path and computes forward speed and yaw rate. It can slow for tight turns, nearby obstacles, and goal approach. With collision checking enabled, it projects the commanded motion against the local costmap and stops if it predicts a collision. A detour requires a new path from planning.
+
+### [Collision Monitor](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/collision_monitor/)
+
+Nav2’s Collision Monitor subscribes to the LiDAR scans and checks them against zones around the robot. It filters commands from both the path controller and Behavior Server before they reach the MCU, reducing speed or commanding a stop when a zone triggers. 
+
+### [BackUp](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/bt_plugins/actions/BackUp/)
+
+Nav2’s Behavior Server runs `BackUp` as a straight reverse maneuver with zero commanded yaw rate. It can be used to change the reset the robot position from the target to retry a monuver. It is supplied the reverse distance, speed, and time allowance. The commands are routed through the collision monitor.
+
+### [Spin](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/bt_plugins/actions/Spin/)
+
+Nav2’s Behavior Server runs `Spin` as an in-place turn. The mission controller supplies a signed yaw change in radians relative to the robot’s current heading and a time allowance. It can be used to reorient the robot.
+
+### [DriveOnHeading](https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/core_servers/bt_plugins/actions/DriveOnHeading/)
+
+Nav2’s Behavior Server runs `DriveOnHeading` as a straight move along the robot’s current heading with zero commanded yaw rate. It can be used for a short forward move.
 
 ## Contracts
 
