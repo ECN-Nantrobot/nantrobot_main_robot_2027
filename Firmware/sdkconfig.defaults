@@ -1,0 +1,9 @@
+# Team-shared ESP-IDF configuration.
+# Options here are applied when sdkconfig is (re)generated.
+# Change options with `idf.py menuconfig`, then copy the ones the team needs here.
+
+CONFIG_IDF_TARGET="esp32s3"
+
+# To decide:
+# CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y     match the flash size of the board
+# CONFIG_FREERTOS_HZ=1000              1 ms tick, useful for fast control loops
