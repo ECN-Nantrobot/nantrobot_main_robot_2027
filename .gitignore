@@ -10,9 +10,7 @@ Thumbs.db
 *~
 
 # IDEs and editors
-.vscode/*
-ROS2/src/.vscode/*
-Firmware/.vscode/*
+**/.vscode/
 .idea/
 *.swp
 
@@ -40,6 +38,10 @@ ROS2/log/
 # ESP32
 # ==================================
 Firmware/.cache/
+Firmware/build/
+Firmware/managed_components/
+Firmware/sdkconfig
+Firmware/sdkconfig.old
 
 # ==================================
 # C / C++ build outputs
