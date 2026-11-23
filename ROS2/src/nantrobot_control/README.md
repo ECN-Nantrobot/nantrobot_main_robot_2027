@@ -94,7 +94,7 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 | Control → firmware | Send `TimeSyncRequest` at startup, after reconnect or firmware reboot, and periodically. |
 | Firmware → control | Stream `DriveFeedback` with measured wheel positions and speeds, sample timing, and drive status. |
 | Firmware → control | Respond to each `TimeSyncRequest` with `TimeSyncReply`. |
-| Firmware → control | Stream `ImuFeedback` with angular velocity in rad/s, acceleration in m/s², and the acquisition time in ESP32 uptime. |
+| Firmware → control | Stream `ImuFeedback` with angular velocity in rad/s, acceleration in m/s², and the acquisition time in MCU uptime. |
 
 #### Settings
 
@@ -104,6 +104,10 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 * Stop bits `1`
 
 #### Message structure
+
+Both endpoints COBS-encode the complete message below, including its CRC, and append one
+`0x00` byte as the frame delimiter. The table gives offsets after COBS decoding. Receivers
+discard malformed frames through the delimiter and resume at the next frame.
 
 | Position | Field | Type | Meaning |
 | --- | --- | --- | --- |
@@ -117,6 +121,8 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 
 * Type `0x01`
 * Payload `13 bytes`
+* Frequency `25 Hz`
+* Timeout `5 samples (200 ms)`
 
 | Payload offset | Field | Type | Meaning |
 | --- | --- | --- | --- |
@@ -125,10 +131,17 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 | 8 | `yaw_rate_radps` | `f32` | Signed target yaw rate in rad/s, positive counterclockwise viewed from above. |
 | 12 | `drive_flags` | `u8` | Bit 0 permits drive. Clear it to request a stop. Bits 1–7 are reserved and must be zero. |
 
+| Bit | Flag | Meaning when set |
+| --- | --- | --- |
+| 0 | `enable` | The Pi has permitted drive output. When cleared, the MCU should stop motion and disable the drives. |
+| 1-7 | `N/A` | Reserved |
+
 #### `DriveFeedback`
 
 * Type `0x02`
 * Payload `33 bytes`
+* Frequency `50 Hz`
+* Timeout `5 samples (100 ms)`
 
 | Payload offset | Field | Type | Meaning |
 | --- | --- | --- | --- |
@@ -138,8 +151,14 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 | 16 | `right_wheel_position_rad` | `f32` | Accumulated right wheel angle in radians since boot. |
 | 20 | `left_wheel_speed_radps` | `f32` | Measured left wheel speed in rad/s. |
 | 24 | `right_wheel_speed_radps` | `f32` | Measured right wheel speed in rad/s. |
-| 28 | `last_applied_sequence` | `u32` | Sequence of the most recent applied drive command. Valid when status bit 4 is set. |
-| 32 | `status` | `u8` | TBD |
+| 28 | `last_applied_sequence` | `u32` | Sequence of the most recent applied drive command. |
+| 32 | `feedback_flags` | `u8` | Drive status flags below. |
+
+| Bit | Flag | Meaning when set |
+| --- | --- | --- |
+| 0 | `enabled` | The MCU has enabled drive output. A permitted zero target can still be enabled. |
+| 1 | `command_timeout` | The MCU stopped locally because fresh drive commands stopped arriving. |
+| 2-7 | `N/A` | Reserved |
 
 #### `TimeSyncRequest`
 
@@ -154,12 +173,13 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 
 * Type `0x04`
 * Payload `16 bytes`
+* Timeout `100 ms (5 retries)`
 
 | Payload offset | Field | Type | Meaning |
 | --- | --- | --- | --- |
 | 0 | `request_id` | `u32` | Echoes the request ID so the Pi can match the reply. |
 | 4 | `boot_id` | `u32` | Identifier that changes on each firmware boot. |
-| 8 | `eepoch_time_us` | `u64` | ESP32 uptime in µs, captured while handling the request. |
+| 8 | `time_us` | `u64` | MCU uptime in µs, captured while handling the request. |
 
 #### `ImuFeedback`
 
@@ -169,7 +189,7 @@ The firmware and MCU bridge exchange the following wire-protocol messages.
 
 | Payload offset | Field | Type | Meaning |
 | --- | --- | --- | --- |
-| 0 | `boot_id` | `u32` | Current ESP32 boot ID, shared with drive feedback and time sync. |
+| 0 | `boot_id` | `u32` | Current MCU boot ID, shared with drive feedback and time sync. |
 | 4 | `sample_time_us` | `u64` | IMU acquisition time in µs since boot. |
 | 12 | `angular_velocity_x_radps` | `f32` | Angular velocity about the IMU X axis in rad/s. |
 | 16 | `angular_velocity_y_radps` | `f32` | Angular velocity about the IMU Y axis in rad/s. |

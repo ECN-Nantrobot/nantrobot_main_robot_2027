@@ -18,9 +18,9 @@ if [ "$EUID" -eq 0 ]; then
 else
   sudo apt-get update
 fi
-rosdep install --from-paths "$workspace/ROS2/src" --ignore-src --rosdistro jazzy -y
+rosdep install --from-paths "$workspace/src" --ignore-src --rosdistro jazzy -y
 
-cd "$workspace/ROS2"
+cd "$workspace"
 database=src/nantrobot_control/compile_commands.json
 if [ ! -e "$database" ] && [ ! -L "$database" ]; then
   ln -s ../../build/nantrobot_control/compile_commands.json "$database"
