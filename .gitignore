@@ -8,11 +8,13 @@ Thumbs.db
 *.tmp
 *.bak
 *~
+.cache/
 
 # IDEs and editors
 **/.vscode/
 .idea/
 *.swp
+.kilo/
 
 # Python
 __pycache__/
@@ -63,7 +65,7 @@ Firmware/sdkconfig.old
 # ==================================
 # Local environment files
 # ==================================
+.local/
 .env
 .env.*
 !.env.example
-
