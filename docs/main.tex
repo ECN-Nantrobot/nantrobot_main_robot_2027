@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{report}
+
+% ------------------------------------------------------------------
+% Packages
+% ------------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds,calc}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{csquotes}
+\usepackage[hidelinks]{hyperref}
+
+% ------------------------------------------------------------------
+% Colours
+% ------------------------------------------------------------------
+\definecolor{navy}{HTML}{14213D}
+\definecolor{accent}{HTML}{FCA311}
+\definecolor{rosblue}{HTML}{2B6CB0}
+\definecolor{fworange}{HTML}{DD6B20}
+\definecolor{lightgrey}{HTML}{F2F2F2}
+\definecolor{midgrey}{HTML}{8A8A8A}
+\definecolor{okgreen}{HTML}{2F855A}
+\definecolor{warnred}{HTML}{C53030}
+
+% ------------------------------------------------------------------
+% Layout
+% ------------------------------------------------------------------
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setlist{itemsep=0.2em, topsep=0.3em}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\emergencystretch}{3em}
+
+\titleformat{\chapter}[display]
+  {\normalfont\sffamily\bfseries\color{navy}}
+  {\large\color{accent}\MakeUppercase{\chaptertitlename}~\thechapter}
+  {0.3em}
+  {\Huge}
+  [\vspace{0.2em}{\color{accent}\titlerule[1.5pt]}]
+\titlespacing*{\chapter}{0pt}{-20pt}{25pt}
+\titleformat{\section}{\normalfont\sffamily\Large\bfseries\color{navy}}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\normalfont\sffamily\large\bfseries\color{navy}}{\thesubsection}{0.8em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\small\color{midgrey}Nantrobot 2027 -- Main robot software}
+\fancyhead[R]{\sffamily\small\color{midgrey}\leftmark}
+\fancyfoot[C]{\sffamily\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\sffamily\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ------------------------------------------------------------------
+% Code listings
+% ------------------------------------------------------------------
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{lightgrey},
+  frame=single, rulecolor=\color{lightgrey},
+  breaklines=true, columns=fullflexible,
+  keywordstyle=\color{rosblue}\bfseries,
+  commentstyle=\color{midgrey}\itshape,
+  stringstyle=\color{fworange},
+  showstringspaces=false,
+  xleftmargin=0.5em, xrightmargin=0.5em,
+}
+
+% ------------------------------------------------------------------
+% Boxes and status tags
+% ------------------------------------------------------------------
+\newtcolorbox{notebox}[1][Note]{colback=rosblue!6, colframe=rosblue, fonttitle=\sffamily\bfseries, title={#1}, arc=2pt, boxrule=0.8pt}
+\newtcolorbox{warnbox}[1][Warning]{colback=warnred!6, colframe=warnred, fonttitle=\sffamily\bfseries, title={#1}, arc=2pt, boxrule=0.8pt}
+\newtcolorbox{decisionbox}[1][Decision]{colback=okgreen!6, colframe=okgreen, fonttitle=\sffamily\bfseries, title={#1}, arc=2pt, boxrule=0.8pt}
+
+\newcommand{\statustag}[2]{\tikz[baseline=(t.base)]\node[fill=#1, text=white, rounded corners=2pt, inner sep=2pt, font=\sffamily\scriptsize\bfseries](t){#2};}
+\newcommand{\done}{\statustag{okgreen}{DONE}}
+\newcommand{\wip}{\statustag{accent}{IN PROGRESS}}
+\newcommand{\todo}{\statustag{midgrey}{PLANNED}}
+\newcommand{\open}{\statustag{warnred}{OPEN}}
+\newcommand{\proposed}{\statustag{rosblue}{PROPOSED}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\status}[1]{\par\noindent #1\par}
+
+% ------------------------------------------------------------------
+% Document information (edit here)
+% ------------------------------------------------------------------
+\newcommand{\doctitle}{Main Robot Software}
+\newcommand{\docsubtitle}{Architecture, firmware and ROS~2 documentation}
+\newcommand{\docversion}{Draft 0.1}
+\newcommand{\docdate}{November 2026}
+\newcommand{\docteam}{Nantrobot -- ROS2 and Firmware teams}
+\newcommand{\docschool}{\'Ecole Centrale de Nantes}
+
+\begin{document}
+
+\input{sections/titlepage}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+% \input{sections/introduction}
+% \input{sections/architecture}
+% \input{sections/repository}
+% \input{sections/firmware}
+\input{sections/motor}
+% \input{sections/drive}
+% \input{sections/ros2}
+% \input{sections/protocol}
+% \input{sections/decisions}
+
+% \appendix
+% \input{sections/environment}
+
+\end{document}

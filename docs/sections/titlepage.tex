@@ -1,0 +1,75 @@
+% ------------------------------------------------------------------
+% Front page
+% ------------------------------------------------------------------
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture, overlay]
+
+  % Navy upper block
+  \fill[navy] (current page.north west) rectangle ([yshift=-17cm]current page.north east);
+  % Accent stripe
+  \fill[accent] ([yshift=-17cm]current page.north west) rectangle ([yshift=-17.35cm]current page.north east);
+
+  % Faint grid, like a playing table
+  \begin{scope}[shift={([xshift=10.5cm,yshift=-8.5cm]current page.north west)}]
+    \foreach \x in {-10,-9,...,10} \draw[white, opacity=0.05] (\x,-8.5) -- (\x,8.5);
+    \foreach \y in {-8,-7,...,8} \draw[white, opacity=0.05] (-10.5,\y) -- (10.5,\y);
+  \end{scope}
+
+  % Robot seen from above, with lidar rays
+  \begin{scope}[shift={([xshift=-5.2cm,yshift=-11.2cm]current page.north east)}, scale=1.15]
+    \foreach \a in {0,12,...,348}
+      \draw[accent, opacity=0.35, line width=0.6pt] (0,0) -- (\a:3.1);
+    \foreach \a in {0,12,...,348}
+      \fill[accent, opacity=0.8] (\a:3.1) circle (1.6pt);
+    \fill[white, opacity=0.08] (0,0) circle (2.1);
+    \draw[white, line width=1.6pt, fill=navy] (0,0) circle (1.5);
+    \fill[white] (-1.62,-0.55) rectangle (-1.32,0.55);
+    \fill[white] (1.32,-0.55) rectangle (1.62,0.55);
+    \draw[white, line width=1pt, fill=accent] (0,0.25) circle (0.38);
+    \fill[white] (0,0.25) circle (0.1);
+    \draw[white, line width=1.2pt, -{Stealth[length=7pt]}] (0,-0.5) -- (0,-1.05);
+  \end{scope}
+
+  % Titles
+  \node[anchor=north west, text=accent, font=\sffamily\bfseries\large, inner sep=0]
+    at ([xshift=2.2cm,yshift=-2.6cm]current page.north west)
+    {COUPE DE FRANCE DE ROBOTIQUE 2027 \,\textbullet\, EUROBOT};
+
+  \node[anchor=north west, text=white, font=\sffamily\bfseries\fontsize{42}{46}\selectfont, inner sep=0, align=left]
+    at ([xshift=2.2cm,yshift=-4.2cm]current page.north west)
+    {Main Robot\\[0.15cm]Software};
+
+  \node[anchor=north west, text=white!80!navy, font=\sffamily\Large, inner sep=0, text width=11cm, align=left]
+    at ([xshift=2.2cm,yshift=-8.4cm]current page.north west)
+    {\docsubtitle};
+
+  \node[anchor=north west, text=white, font=\sffamily\bfseries\Huge, inner sep=0]
+    at ([xshift=2.2cm,yshift=-14.6cm]current page.north west)
+    {NANTROBOT};
+
+  % Lower block: scope summary
+  \node[anchor=north west, inner sep=0, text width=16.6cm, font=\sffamily]
+    at ([xshift=2.2cm,yshift=-18.6cm]current page.north west)
+  {%
+    \begin{tabular}{@{}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{5.2cm}@{}}
+      {\color{rosblue}\rule{1.2cm}{3pt}} & {\color{fworange}\rule{1.2cm}{3pt}} & {\color{navy}\rule{1.2cm}{3pt}}\\[0.1cm]
+      {\bfseries\color{navy} ROS 2 Jazzy} & {\bfseries\color{navy} ESP32 firmware} & {\bfseries\color{navy} Serial link}\\
+      {\small\color{midgrey} Raspberry Pi} &
+      {\small\color{midgrey} ESP-IDF, C} &
+      {\small\color{midgrey} Raspberry Pi -- ESP32}\\
+    \end{tabular}
+  };
+
+  % Footer
+  \draw[midgrey!50, line width=0.4pt]
+    ([xshift=2.2cm,yshift=3.6cm]current page.south west) -- ([xshift=-2.2cm,yshift=3.6cm]current page.south east);
+  \node[anchor=north west, font=\sffamily, inner sep=0, align=left]
+    at ([xshift=2.2cm,yshift=3.2cm]current page.south west)
+    {{\bfseries\color{navy}\docteam}\\[0.1cm]{\color{midgrey}\docschool}};
+  \node[anchor=north east, font=\sffamily, inner sep=0, align=right]
+    at ([xshift=-2.2cm,yshift=3.2cm]current page.south east)
+    {{\bfseries\color{navy}\docversion}\\[0.1cm]{\color{midgrey}\docdate}};
+
+\end{tikzpicture}
+\end{titlepage}
