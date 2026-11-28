@@ -1,11 +1,11 @@
-\chapter{Motor component}\label{ch:motor}
+\section{Motor component}\label{sec:motor}
 
-\section{Purpose}
+\subsection{Purpose}
 The robot moves on two stepper motors. A stepper does not turn on its own when it receives power: its driver advances the shaft by one small step every time it receives a pulse on its STEP input, and the DIR input chooses the direction. Making a wheel turn at a given speed therefore means sending a steady train of pulses at the right rate, with DIR set the right way.
 
 The \code{motor} component of the ESP32 firmware is the part of the code that will do exactly this, and nothing more. It knows about pins, pulses and step counts, but it does not know the size of the wheels or how the robot should move: those questions belong to a higher layer. Keeping it this simple means the same component can drive the left wheel, the right wheel, and later any other stepper on the robot.
 
-\section{What has been done}
+\subsection{What has been done}
 So far the work has focused on the shape of the component rather than on moving a motor:
 
 \begin{itemize}
@@ -30,12 +30,12 @@ Reading the position & \todo & declared only \\
 \end{tabularx}
 \end{center}
 
-\section{The public API}
+\subsection{The public API}
 The public API is everything another part of the firmware is allowed to see and use: the contents of \code{motor.h}. Everything else stays private inside \code{motor.c}. This separation matters because it lets the inside of the component change (for example, how pulses are generated) without breaking the code that uses it.
 
 The API is made of three ideas: a \emph{description} of a motor, a \emph{handle} that represents one motor once it exists, and three \emph{functions}.
 
-\subsection{Describing a motor}
+\subsubsection{Describing a motor}
 Before a motor can be created, the caller fills in a small description of it, called the motor configuration. It answers five questions:
 
 \begin{center}
@@ -54,12 +54,12 @@ Invert direction & On a two-wheeled robot the motors face opposite ways, so for 
 
 Two choices are worth noting. First, the motor is told its pins rather than looking them up itself: the pin numbers live in the board's pin map, and the code that creates the motor passes them in. The component therefore does not depend on a particular board, and can be reused elsewhere. Second, microstepping is a fixed list of named values rather than any number, so a typing mistake is caught when the code compiles or when the motor is created.
 
-\subsection{The motor handle}
+\subsubsection{The motor handle}
 Once a motor has been created, the rest of the firmware refers to it through a \emph{handle}. A handle can be thought of as a ticket: the component hands it out when a motor is created, and the caller gives it back every time it wants something done to that particular motor. With two motors there are simply two handles.
 
 The important property of the handle is that it is \emph{opaque}: the caller can keep it and pass it around, but cannot look inside it. What the motor stores internally (a copy of its configuration and the hardware resources used to generate pulses) is visible only to the motor component itself. This prevents other parts of the firmware from changing the motor's state behind its back, and it is the same pattern Espressif uses for its own drivers, so it will feel familiar to anyone who has used ESP-IDF.
 
-\subsection{The three functions}
+\subsubsection{The three functions}
 All three functions follow the same convention as the rest of ESP-IDF: they return an error code that says whether the call succeeded, and any result is written into a variable that the caller provides. The caller can therefore always check for errors, and the firmware stops with a clear message at start-up if something is misconfigured.
 
 \begin{center}
@@ -82,7 +82,7 @@ esp_err_t motor_get_position(motor_handle_t motor, int32_t *ret_position);
 
 Speeds and positions are expressed in microsteps on purpose. The motor component works at the level of the hardware; converting to metres per second, or to the robot's forward speed and turning rate, will be the job of the drive control layer above it. The position is stored as a 32-bit signed number, which at 3200 microsteps per wheel turn covers several hundred thousand turns, far more than a match will ever need.
 
-\section{How a motor is created}
+\subsection{How a motor is created}
 Creating a motor is the only part that is fully implemented, and it was written to be strict. When \code{motor\_new} is called, it works through the following steps, and stops with an error at the first problem:
 
 \begin{enumerate}
@@ -97,7 +97,7 @@ Each refusal is reported in the log with the reason, for example ``invalid micro
 
 These checks were added after a real mistake during development: a configuration was once created with its microstepping left at zero, and nothing complained. With the checks in place, the same mistake now stops the firmware at start-up with a clear explanation.
 
-\section{Testing}
+\subsection{Testing}
 The firmware was flashed on the ESP32 test board. At start-up, \code{app\_main} creates the right-hand motor on pins 16 (STEP) and 17 (DIR), with 200 steps per revolution and 1/16 microstepping. The start-up log confirms each stage:
 
 \begin{lstlisting}

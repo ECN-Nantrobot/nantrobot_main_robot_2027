@@ -56,6 +56,9 @@
 \titlespacing*{\chapter}{0pt}{-20pt}{25pt}
 \titleformat{\section}{\normalfont\sffamily\Large\bfseries\color{navy}}{\thesection}{0.8em}{}
 \titleformat{\subsection}{\normalfont\sffamily\large\bfseries\color{navy}}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}{\normalfont\sffamily\normalsize\bfseries\color{navy}}{\thesubsubsection}{0.8em}{}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -109,24 +112,14 @@
 
 \begin{document}
 
-\input{sections/titlepage}
+\input{titlepage}
 
 \pagenumbering{roman}
 \tableofcontents
 \clearpage
 \pagenumbering{arabic}
 
-% \input{sections/introduction}
-% \input{sections/architecture}
-% \input{sections/repository}
-% \input{sections/firmware}
-\input{sections/motor}
-% \input{sections/drive}
-% \input{sections/ros2}
-% \input{sections/protocol}
-% \input{sections/decisions}
-
-% \appendix
-% \input{sections/environment}
+\input{chapters/ros2/ros2}
+\input{chapters/firmware/firmware}
 
 \end{document}
